@@ -1,13 +1,12 @@
-# Hardhat Boilerplate
+# Bitlayer Omnity Demo
 
-This repository contains a sample project that you can use as the starting point
-for your Ethereum project. It's also a great fit for learning the basics of
-smart contract development.
+This repository contains a demo application that interacts with Omnity on the Bitlayer, functioning as a LuckyPot.
 
-This project is intended to be used with the
-[Hardhat Beginners Tutorial](https://hardhat.org/tutorial), but you should be
-able to follow it by yourself by reading the README and exploring its
-`contracts`, `tests`, `scripts` and `frontend` directories.
+Users can cross-chain mint 1 UNCOMMON•GOODS into this LuckyPot contract by making a deposit. When the contract holds UNCOMMON•GOODS, users can enter their Bitcoin address and click “Draw” to participate in the raffle. The draw can result in one of three outcomes:
+
+	1.	1 UNCOMMON•GOODS is redeemed to the user’s provided Bitcoin address.
+	2.	1 UNCOMMON•GOODS is transferred cross-chain to the user’s corresponding account on BEVM.
+	3.	1 UNCOMMON•GOODS is destroyed.
 
 ## Quick start
 
@@ -15,25 +14,12 @@ The first things you need to do are cloning this repository and installing its
 dependencies:
 
 ```sh
-git clone https://github.com/NomicFoundation/hardhat-boilerplate.git
-cd hardhat-boilerplate
+git clone https://github.com/octopus-network/bitlayer-omnity-demo.git
+cd bitlayer-omnity-demo
 npm install
 ```
 
-Once installed, let's run Hardhat's testing network:
-
-```sh
-npx hardhat node
-```
-
-Then, on a new terminal, go to the repository's root folder and run this to
-deploy your contract:
-
-```sh
-npx hardhat run scripts/deploy.js --network localhost
-```
-
-Finally, we can run the frontend with:
+Then, we can run the frontend with:
 
 ```sh
 cd frontend
@@ -45,46 +31,24 @@ Open [http://localhost:3000/](http://localhost:3000/) to see your Dapp. You will
 need to have [Coinbase Wallet](https://www.coinbase.com/wallet) or [Metamask](https://metamask.io) installed and listening to
 `localhost 8545`.
 
-## User Guide
 
-You can find detailed instructions on using this repository and many tips in [its documentation](https://hardhat.org/tutorial).
+On a new terminal, go to the repository's root folder and run this to
+deploy your contract to Bitlayer mainnet:
 
-- [Writing and compiling contracts](https://hardhat.org/tutorial/writing-and-compiling-contracts/)
-- [Setting up the environment](https://hardhat.org/tutorial/setting-up-the-environment/)
-- [Testing Contracts](https://hardhat.org/tutorial/testing-contracts/)
-- [Setting up your wallet](https://hardhat.org/tutorial/boilerplate-project#how-to-use-it)
-- [Hardhat's full documentation](https://hardhat.org/docs/)
+```sh
+$ npx hardhat vars set BITLAYER_PRIVATE_KEY
+$ npx hardhat ignition deploy ./ignition/modules/LuckyPot.js --network bitlayer
+✔ Confirm deploy to network bitlayer (200901)? … yes
+Hardhat Ignition 🚀
 
-For a complete introduction to Hardhat, refer to [this guide](https://hardhat.org/getting-started/#overview).
+Deploying [ LuckyPotModule ]
 
-## What's Included?
+Batch #1
+  Executed LuckyPotModule#LuckyPot
 
-This repository uses our recommended hardhat setup, by using our [`@nomicfoundation/hardhat-toolbox`](https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-toolbox). When you use this plugin, you'll be able to:
+[ LuckyPotModule ] successfully deployed 🚀
 
-- Deploy and interact with your contracts using [ethers.js](https://docs.ethers.io/v5/) and the [`hardhat-ethers`](https://hardhat.org/hardhat-runner/plugins/nomiclabs-hardhat-ethers) plugin.
-- Test your contracts with [Mocha](https://mochajs.org/), [Chai](https://chaijs.com/) and our own [Hardhat Chai Matchers](https://hardhat.org/hardhat-chai-matchers) plugin.
-- Interact with Hardhat Network with our [Hardhat Network Helpers](https://hardhat.org/hardhat-network-helpers).
-- Verify the source code of your contracts with the [hardhat-etherscan](https://hardhat.org/hardhat-runner/plugins/nomiclabs-hardhat-etherscan) plugin.
-- Get metrics on the gas used by your contracts with the [hardhat-gas-reporter](https://github.com/cgewecke/hardhat-gas-reporter) plugin.
-- Measure your tests coverage with [solidity-coverage](https://github.com/sc-forks/solidity-coverage).
+Deployed Addresses
 
-This project also includes [a sample frontend/Dapp](./frontend), which uses [Create React App](https://github.com/facebook/create-react-app).
-
-## Troubleshooting
-
-- `Invalid nonce` errors: if you are seeing this error on the `npx hardhat node`
-  console, try resetting your Metamask account. This will reset the account's
-  transaction history and also the nonce. Open Metamask, click on your account
-  followed by `Settings > Advanced > Clear activity tab data`.
-
-## Setting up your editor
-
-[Hardhat for Visual Studio Code](https://hardhat.org/hardhat-vscode) is the official Hardhat extension that adds advanced support for Solidity to VSCode. If you use Visual Studio Code, give it a try!
-
-## Getting help and updates
-
-If you need help with this project, or with Hardhat in general, please read [this guide](https://hardhat.org/hardhat-runner/docs/guides/getting-help) to learn where and how to get it.
-
-For the latest news about Hardhat, [follow us on Twitter](https://twitter.com/HardhatHQ), and don't forget to star [our GitHub repository](https://github.com/NomicFoundation/hardhat)!
-
-**Happy _building_!**
+LuckyPotModule#LuckyPot - 0x7A4daDbFB7FAd10daD816A9864aFC19F813bd1c3
+```

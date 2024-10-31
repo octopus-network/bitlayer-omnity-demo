@@ -1,7 +1,7 @@
 {
-  "name": "hardhat-boilerplate",
+  "name": "bitlayer-omnity-demo",
   "version": "1.0.0",
-  "description": "A boilerplate repository to get you started with Hardhat and Ethereum development",
+  "description": "An Omnity dapp demo on the Bitlayer, modified from the Hardhat boilerplate",
   "scripts": {
     "test": "hardhat test"
   },
@@ -18,16 +18,8 @@
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
-    "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
-    "@nomicfoundation/hardhat-network-helpers": "^1.0.12",
-    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
-    "@nomiclabs/hardhat-ethers": "^2.2.3",
-    "@nomiclabs/hardhat-etherscan": "^3.1.8",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@openzeppelin/contracts": "^5.1.0",
-    "chai": "^4.3.7",
-    "ethers": "^5.7.2",
-    "hardhat": "^2.22.15",
-    "hardhat-gas-reporter": "^1.0.9",
-    "solidity-coverage": "^0.8.2"
+    "hardhat": "^2.22.15"
   }
 }

@@ -10,6 +10,7 @@ const { expect } = require("chai");
 // Using this simplifies your tests and makes them run faster, by taking
 // advantage or Hardhat Network's snapshot functionality.
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
+// const { ethers } = require("hardhat");
 
 // `describe` is a Mocha function that allows you to organize your tests.
 // Having your tests organized makes debugging them easier. All Mocha
@@ -21,21 +22,13 @@ const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 describe("LuckyPot", function () {
   // Fixture that deploys all contracts for testing
   async function deployFixture() {
-    // Get contract factories
-    const Token = await ethers.getContractFactory("MockToken");
-    const OmnityPort = await ethers.getContractFactory("MockOmnityPort");
-    const LuckyPot = await ethers.getContractFactory("LuckyPot");
-
     // Deploy mock contracts
-    const token = await Token.deploy();
-    await token.deployed();
+    const token = await ethers.deployContract("MockToken");
 
-    const omnityPort = await OmnityPort.deploy();
-    await omnityPort.deployed();
+    const omnityPort = await ethers.deployContract("MockOmnityPort")
 
     // Deploy main contract
-    const luckyPot = await LuckyPot.deploy(token.address, omnityPort.address);
-    await luckyPot.deployed();
+    const luckyPot = await ethers.deployContract("LuckyPot", [token.target, omnityPort.target]);
 
     // Get signers
     const [owner, user] = await ethers.getSigners();
@@ -60,8 +53,9 @@ describe("LuckyPot", function () {
   describe("Transactions", function () {
     it("Should emit deposit event", async function () {
       const { luckyPot, user } = await loadFixture(deployFixture);
+      const paymentAmount = ethers.parseEther("0.005");
       
-      await expect(luckyPot.connect(user).deposit())
+      await expect(luckyPot.connect(user).deposit({ value: paymentAmount }))
         .to.emit(luckyPot, "PotDeposit")
         .withArgs(user.address);
     });

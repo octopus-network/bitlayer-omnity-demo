@@ -76,7 +76,9 @@ contract LuckyPot {
     }
     
     function deposit() external payable {
-        omnity.mintRunes{value: msg.value}(tokenId, pot);
+        uint128 redeemFee = omnity.calculateFee(settlementChainId);
+
+        omnity.mintRunes{value: redeemFee}(tokenId, pot);
 
         console.log(
             unicode"1 UNCOMMON•GOODS will be added to the pot by %s",

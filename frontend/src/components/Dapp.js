@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
-import TokenArtifact from "../contracts/Token.json";
+import LuckyPotArtifact from "../contracts/LuckyPot.json";
 import contractAddress from "../contracts/contract-address.json";
 
 // All the logic of this dapp is contained in the Dapp component.
@@ -14,13 +14,14 @@ import contractAddress from "../contracts/contract-address.json";
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
 import { Loading } from "./Loading";
-import { Transfer } from "./Transfer";
+import { Draw } from "./Draw";
 import { TransactionErrorMessage } from "./TransactionErrorMessage";
 import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
-import { NoTokensMessage } from "./NoTokensMessage";
+import { DepositButton } from "./DepositButton";
 
 // This is the default id used by the Hardhat Network
 const HARDHAT_NETWORK_ID = '31337';
+const BITLAYER_NETWORK_ID = '200901';
 
 // This is an error code that indicates that the user canceled a transaction
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
@@ -82,7 +83,7 @@ export class Dapp extends React.Component {
 
     // If the token data or the user's balance hasn't loaded yet, we show
     // a loading component.
-    if (!this.state.tokenData || !this.state.balance) {
+    if (!this.state.balance) {
       return <Loading />;
     }
 
@@ -92,12 +93,12 @@ export class Dapp extends React.Component {
         <div className="row">
           <div className="col-12">
             <h1>
-              {this.state.tokenData.name} ({this.state.tokenData.symbol})
+              LuckyPot
             </h1>
             <p>
-              Welcome <b>{this.state.selectedAddress}</b>, you have{" "}
+              Welcome <b>{this.state.selectedAddress}</b>, the pot has{" "}
               <b>
-                {this.state.balance.toString()} {this.state.tokenData.symbol}
+                {this.state.balance.toString()} UNCOMMON•GOODS
               </b>
               .
             </p>
@@ -132,12 +133,7 @@ export class Dapp extends React.Component {
 
         <div className="row">
           <div className="col-12">
-            {/*
-              If the user has no tokens, we don't show the Transfer form
-            */}
-            {this.state.balance.eq(0) && (
-              <NoTokensMessage selectedAddress={this.state.selectedAddress} />
-            )}
+            <DepositButton deposit={()=>this._deposit()} />
 
             {/*
               This component displays a form that the user can use to send a 
@@ -146,11 +142,10 @@ export class Dapp extends React.Component {
               callback.
             */}
             {this.state.balance.gt(0) && (
-              <Transfer
-                transferTokens={(to, amount) =>
-                  this._transferTokens(to, amount)
+              <Draw
+                draw={(to) =>
+                  this._draw(to)
                 }
-                tokenSymbol={this.state.tokenData.symbol}
               />
             )}
           </div>
@@ -209,7 +204,6 @@ export class Dapp extends React.Component {
     // Fetching the token data and the user's balance are specific to this
     // sample project, but you can reuse the same initialization pattern.
     this._initializeEthers();
-    this._getTokenData();
     this._startPollingData();
   }
 
@@ -219,9 +213,9 @@ export class Dapp extends React.Component {
 
     // Then, we initialize the contract using that provider and the token's
     // artifact. You can do this same thing with your contracts.
-    this._token = new ethers.Contract(
-      contractAddress.Token,
-      TokenArtifact.abi,
+    this._luckyPot = new ethers.Contract(
+      contractAddress.LuckyPot,
+      LuckyPotArtifact.abi,
       this._provider.getSigner(0)
     );
   }
@@ -245,24 +239,32 @@ export class Dapp extends React.Component {
     this._pollDataInterval = undefined;
   }
 
-  // The next two methods just read from the contract and store the results
-  // in the component state.
-  async _getTokenData() {
-    const name = await this._token.name();
-    const symbol = await this._token.symbol();
-
-    this.setState({ tokenData: { name, symbol } });
+  async _updateBalance() {
+    const balance = await this._luckyPot.balance();
+    this.setState({ balance });
   }
 
-  async _updateBalance() {
-    const balance = await this._token.balanceOf(this.state.selectedAddress);
-    this.setState({ balance });
+  async _deposit() {
+    try {
+      const paymentAmount = ethers.utils.parseEther("0.00009");
+      const tx = await this._luckyPot.deposit({ value: paymentAmount });
+      const receipt = await tx.wait();
+
+      // The receipt, contains a status flag, which is 0 to indicate an error.
+      if (receipt.status === 0) {
+        // We can't know the exact error that made the transaction fail when it
+        // was mined, so we throw this generic one.
+        throw new Error("Transaction failed");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   // This method sends an ethereum transaction to transfer tokens.
   // While this action is specific to this application, it illustrates how to
   // send a transaction.
-  async _transferTokens(to, amount) {
+  async _draw(receiver) {
     // Sending a transaction is a complex operation:
     //   - The user can reject it
     //   - It can fail before reaching the ethereum network (i.e. if the user
@@ -284,7 +286,8 @@ export class Dapp extends React.Component {
 
       // We send the transaction, and save its hash in the Dapp's state. This
       // way we can indicate that we are waiting for it to be mined.
-      const tx = await this._token.transfer(to, amount);
+      const paymentAmount = ethers.utils.parseEther("0.00009");
+      const tx = await this._luckyPot.draw(receiver, { value: paymentAmount });
       this.setState({ txBeingSent: tx.hash });
 
       // We use .wait() to wait for the transaction to be mined. This method
@@ -345,7 +348,7 @@ export class Dapp extends React.Component {
   }
 
   async _switchChain() {
-    const chainIdHex = `0x${HARDHAT_NETWORK_ID.toString(16)}`
+    const chainIdHex = `0x${BITLAYER_NETWORK_ID.toString(16)}`
     await window.ethereum.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: chainIdHex }],
@@ -355,7 +358,7 @@ export class Dapp extends React.Component {
 
   // This method checks if the selected network is Localhost:8545
   _checkNetwork() {
-    if (window.ethereum.networkVersion !== HARDHAT_NETWORK_ID) {
+    if (window.ethereum.networkVersion !== BITLAYER_NETWORK_ID) {
       this._switchChain();
     }
   }

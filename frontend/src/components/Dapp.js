@@ -257,7 +257,8 @@ export class Dapp extends React.Component {
         // was mined, so we throw this generic one.
         throw new Error("Transaction failed");
       }
-      await bitlayerRoute.generate_ticket(receipt.hash)
+      console.log(receipt.transactionHash)
+      await bitlayerRoute.generate_ticket(receipt.transactionHash)
     } catch (error) {
       console.error(error);
     }
@@ -303,7 +304,8 @@ export class Dapp extends React.Component {
         throw new Error("Transaction failed");
       }
 
-      await bitlayerRoute.generate_ticket(receipt.hash)
+      console.log(receipt.transactionHash)
+      await bitlayerRoute.generate_ticket(receipt.transactionHash)
       // If we got here, the transaction was successful, so you may want to
       // update your state. Here, we update the user's balance.
       await this._updateBalance();

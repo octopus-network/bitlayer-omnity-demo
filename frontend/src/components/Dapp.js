@@ -18,6 +18,7 @@ import { Draw } from "./Draw";
 import { TransactionErrorMessage } from "./TransactionErrorMessage";
 import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 import { DepositButton } from "./DepositButton";
+import { bitlayerRoute, createActor } from "../candids";
 
 // This is the default id used by the Hardhat Network
 const HARDHAT_NETWORK_ID = '31337';
@@ -256,6 +257,7 @@ export class Dapp extends React.Component {
         // was mined, so we throw this generic one.
         throw new Error("Transaction failed");
       }
+      await bitlayerRoute.generate_ticket(receipt.hash)
     } catch (error) {
       console.error(error);
     }
@@ -301,6 +303,7 @@ export class Dapp extends React.Component {
         throw new Error("Transaction failed");
       }
 
+      await bitlayerRoute.generate_ticket(receipt.hash)
       // If we got here, the transaction was successful, so you may want to
       // update your state. Here, we update the user's balance.
       await this._updateBalance();

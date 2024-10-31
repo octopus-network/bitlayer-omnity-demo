@@ -4,7 +4,7 @@ import {
 } from "./BitcoinCustoms.did";
 import {
   idlFactory as EvmRouteInterfaceFactory,
-} from "./candids/EvmRoute.did";
+} from "./EvmRoute.did";
 
 export const createActor = (
   canisterId,

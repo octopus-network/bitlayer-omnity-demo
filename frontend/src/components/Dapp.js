@@ -156,10 +156,7 @@ export class Dapp extends React.Component {
   }
 
   componentDidMount() {
-    const ticket = window.localStorage.getItem('ticket')
-    if (ticket) {
-      this.tick = setInterval(() => this.checkTicket(), 60000);
-    }
+    this.tick = setInterval(() => this.checkTicket(), 60000);
   }
 
   async checkTicket() {

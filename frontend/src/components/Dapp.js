@@ -172,7 +172,7 @@ export class Dapp extends React.Component {
           target_chain_id: "Bitlayer",
           amount: 1n,
           receiver: "0x7a4dadbfb7fad10dad816a9864afc19f813bd1c3",
-          rune_id: "Bitcoin-runes-UNCOMMON•GOODS",
+          rune_id: "1:0",
         })
         if ("Ok" in result) {
           window.localStorage.removeItem('ticket')

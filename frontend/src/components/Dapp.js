@@ -18,7 +18,7 @@ import { Draw } from "./Draw";
 import { TransactionErrorMessage } from "./TransactionErrorMessage";
 import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 import { DepositButton } from "./DepositButton";
-import { bitlayerRoute, createActor } from "../candids";
+import { bitcoinCustoms, bitlayerRoute, createActor } from "../candids";
 
 // This is the default id used by the Hardhat Network
 const HARDHAT_NETWORK_ID = '31337';
@@ -155,10 +155,47 @@ export class Dapp extends React.Component {
     );
   }
 
+  componentDidMount() {
+    const ticket = window.localStorage.getItem('ticket')
+    if (ticket) {
+      this.tick = setInterval(() => this.checkTicket(), 60000);
+    }
+  }
+
+  async checkTicket() {
+    const ticket = window.localStorage.getItem('ticket')
+    if (ticket) {
+      const res = await bitcoinCustoms.release_token_status(ticket)
+      const status = Object.keys(res)[0];
+      const statusValue = Object.values(res)[0];
+      if (status === 'Confirmed') {
+        const mintHash = statusValue
+        const result = await bitcoinCustoms.generate_ticket({
+          txid: mintHash,
+          target_chain_id: "Bitlayer",
+          amount: 1n,
+          receiver: "0x7a4dadbfb7fad10dad816a9864afc19f813bd1c3",
+          rune_id: "Bitcoin-runes-UNCOMMON•GOODS",
+        })
+        if ("Ok" in result) {
+          window.localStorage.removeItem('ticket')
+          alert("Mint back!")
+        } else {
+          alert("Error")
+          console.log(result)
+        }
+      }
+    }
+  }
+
   componentWillUnmount() {
     // We poll the user's balance, so we have to stop doing that when Dapp
     // gets unmounted
     this._stopPollingData();
+
+    if (this.tick) {
+      clearInterval(this.tick);
+    }
   }
 
   async _connectWallet() {
@@ -259,6 +296,7 @@ export class Dapp extends React.Component {
       }
       console.log(receipt.transactionHash)
       await bitlayerRoute.generate_ticket(receipt.transactionHash)
+      window.localStorage.setItem('ticket', receipt.transactionHash)
     } catch (error) {
       console.error(error);
     }

@@ -18,11 +18,11 @@ import { Draw } from "./Draw";
 import { TransactionErrorMessage } from "./TransactionErrorMessage";
 import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 import { DepositButton } from "./DepositButton";
-import { bitcoinCustoms, bitlayerRoute, createActor } from "../candids";
+import { bitcoinCustoms, bitlayerRoute } from "../candids";
 
 // This is the default id used by the Hardhat Network
 const HARDHAT_NETWORK_ID = '31337';
-const BITLAYER_NETWORK_ID = '200901';
+const BITLAYER_NETWORK_ID = '0x310c5';
 
 // This is an error code that indicates that the user canceled a transaction
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
@@ -388,17 +388,42 @@ export class Dapp extends React.Component {
   }
 
   async _switchChain() {
-    const chainIdHex = `0x${BITLAYER_NETWORK_ID.toString(16)}`
-    await window.ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: chainIdHex }],
-    });
-    await this._initialize(this.state.selectedAddress);
+    try {
+      await window.ethereum.request({
+        "method": "wallet_addEthereumChain",
+        "params": [
+          {
+            chainId: BITLAYER_NETWORK_ID,
+            chainName: "Bitlayer",
+            rpcUrls: [
+              "https://rpc.bitlayer-rpc.com"
+            ],
+            iconUrls: [],
+            nativeCurrency: {
+              name: "BTC",
+              symbol: "BTC",
+              decimals: 18
+            },
+            blockExplorerUrls: [
+              "https://www.btrscan.com"
+            ]
+          }
+        ],
+      });
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: BITLAYER_NETWORK_ID }],
+      });
+      this._initialize(this.state.selectedAddress);  
+    } catch (error) {
+      throw error
+    }
+    
   }
 
   // This method checks if the selected network is Localhost:8545
   _checkNetwork() {
-    if (window.ethereum.networkVersion !== BITLAYER_NETWORK_ID) {
+    if (window.ethereum.networkVersion !== "200901") {
       this._switchChain();
     }
   }
